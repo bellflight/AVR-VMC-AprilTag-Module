@@ -1,0 +1,15 @@
+[submodule "c/libraries/paho.mqtt.c"]
+	path = c/libraries/paho.mqtt.c
+	url = https://github.com/eclipse/paho.mqtt.c
+	branch = v1.3.11
+	shallow = true
+[submodule "c/libraries/paho.mqtt.cpp"]
+	path = c/libraries/paho.mqtt.cpp
+	url = https://github.com/eclipse/paho.mqtt.cpp
+	branch = v1.2.0
+	shallow = true
+[submodule "c/libraries/json"]
+	path = c/libraries/json
+	url = https://github.com/nlohmann/json
+	branch = v3.10.5
+	shallow = true
