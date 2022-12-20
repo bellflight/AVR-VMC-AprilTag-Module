@@ -1,5 +1,7 @@
 FROM nvcr.io/nvidia/l4t-ml:r32.6.1-py3
 
+ENV PYTHON_VERSION=3.11
+
 # Fix numpy issues
 ENV OPENBLAS_CORETYPE=AARCH64
 
@@ -13,9 +15,9 @@ RUN add-apt-repository ppa:deadsnakes/ppa \
 # https://askubuntu.com/a/1297198
 # libssl is needed for MQTT libraries
 RUN apt-get install -y \
-    python3.11 \
-    python3.11-dev \
-    python3.11-distutils \
+    python${PYTHON_VERSION} \
+    python${PYTHON_VERSION}-dev \
+    python${PYTHON_VERSION}-distutils \
     python3-pip \
     libssl-dev
 RUN python3.11 -m pip install pip wheel setuptools --upgrade
@@ -55,7 +57,7 @@ RUN mkdir -p c/build \
  && make -j$(nproc)
 
 COPY requirements.txt requirements.txt
-RUN python3.11 -m pip install -r requirements.txt
+RUN python${PYTHON_VERSION} -m pip install -r requirements.txt
 
 COPY . .
 RUN chmod +x ./docker-entrypoint.sh
