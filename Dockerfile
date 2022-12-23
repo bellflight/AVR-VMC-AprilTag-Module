@@ -1,6 +1,14 @@
-FROM nvcr.io/nvidia/l4t-ml:r32.6.1-py3
+# https://ngc.nvidia.com/catalog/containers/nvidia:l4t-ml
+# Use the ML version because it already has precompiled OpenCV
+FROM nvcr.io/nvidia/l4t-ml:r35.1.0-py3
 
 ENV PYTHON_VERSION=3.11
+
+ENV L4T_MAJOR_VERSION=35
+ENV L4T_MINOR_VERSION=1
+ENV L4T_PATCH_VERSION=0
+
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Fix numpy issues
 ENV OPENBLAS_CORETYPE=AARCH64
@@ -15,12 +23,14 @@ RUN add-apt-repository ppa:deadsnakes/ppa \
 # https://askubuntu.com/a/1297198
 # libssl is needed for MQTT libraries
 RUN apt-get install -y \
+    curl \
+    libssl-dev \
+    python3-pip \
     python${PYTHON_VERSION} \
     python${PYTHON_VERSION}-dev \
     python${PYTHON_VERSION}-distutils \
-    python3-pip \
-    libssl-dev
-RUN python3.11 -m pip install pip wheel setuptools --upgrade
+ && curl -sS https://bootstrap.pypa.io/get-pip.py | python${PYTHON_VERSION} \
+ && python${PYTHON_VERSION} -m pip install pip wheel setuptools --upgrade
 
 WORKDIR /app
 
@@ -62,4 +72,5 @@ RUN python${PYTHON_VERSION} -m pip install -r requirements.txt
 COPY . .
 RUN chmod +x ./docker-entrypoint.sh
 
+RUN rm /usr/bin/python3 && ln -s /usr/bin/python${PYTHON_VERSION} /usr/bin/python3
 CMD ["./docker-entrypoint.sh"]

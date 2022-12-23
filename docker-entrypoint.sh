@@ -4,4 +4,4 @@
 ldconfig /opt/nvidia/vpi1/lib64
 
 # run the python program (launches the C program)
-python3.11 python/apriltag_processor.py
+python3 python/apriltag_processor.py
