@@ -1,3 +1,13 @@
+FROM docker.io/library/python:3.11-alpine AS poetry-exporter
+
+WORKDIR /work
+
+COPY pyproject.toml pyproject.toml
+COPY poetry.lock poetry.lock
+
+RUN python -m pip install poetry \
+ && poetry export -o requirements.txt
+
 # https://ngc.nvidia.com/catalog/containers/nvidia:l4t-ml
 # Use the ML version because it already has precompiled OpenCV
 FROM nvcr.io/nvidia/l4t-ml:r35.1.0-py3
@@ -66,7 +76,7 @@ RUN mkdir -p c/build \
  && cmake .. \
  && make -j$(nproc)
 
-COPY requirements.txt requirements.txt
+COPY --from=poetry-exporter /work/requirements.txt requirements.txt
 RUN python${PYTHON_VERSION} -m pip install -r requirements.txt
 
 COPY . .
