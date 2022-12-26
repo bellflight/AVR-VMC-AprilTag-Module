@@ -14,10 +14,6 @@ FROM nvcr.io/nvidia/l4t-ml:r35.1.0-py3
 
 ENV PYTHON_VERSION=3.11
 
-ENV L4T_MAJOR_VERSION=35
-ENV L4T_MINOR_VERSION=1
-ENV L4T_PATCH_VERSION=0
-
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Fix numpy issues
@@ -45,7 +41,7 @@ RUN apt-get install -y \
 WORKDIR /app
 
 # Copy libraries
-COPY c/libraries c/libraries
+COPY src/c/libraries c/libraries
 
 # Install paho C library
 RUN cd c/libraries/paho.mqtt.c \
@@ -69,8 +65,8 @@ RUN wget https://developer.nvidia.com/isaac/download/third_party/april_tags_v5_j
  && rm april_tags_v5_jp44_nano-tar-xz
 
 # Build the april tag application
-COPY c/src c/src
-COPY c/CMakeLists.txt c/CMakeLists.txt
+COPY src/c/src c/src
+COPY src/c/CMakeLists.txt c/CMakeLists.txt
 RUN mkdir -p c/build \
  && cd c/build \
  && cmake .. \
@@ -79,7 +75,7 @@ RUN mkdir -p c/build \
 COPY --from=poetry-exporter /work/requirements.txt requirements.txt
 RUN python${PYTHON_VERSION} -m pip install -r requirements.txt
 
-COPY . .
+COPY src .
 RUN chmod +x ./docker-entrypoint.sh
 
 RUN rm /usr/bin/python3 && ln -s /usr/bin/python${PYTHON_VERSION} /usr/bin/python3
