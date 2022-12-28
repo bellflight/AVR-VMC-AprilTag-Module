@@ -12,20 +12,14 @@ updates:
       interval: "monthly"
     target-branch: "develop"
 
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "monthly"
-    target-branch: "develop"
-
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
       interval: "monthly"
     target-branch: "develop"
 
-  - package-ecosystem: "docker"
-    directory: "/"
-    schedule:
-      interval: "monthly"
-    target-branch: "develop"
+  # - package-ecosystem: "docker"
+  #   directory: "/"
+  #   schedule:
+  #     interval: "monthly"
+  #   target-branch: "develop"
