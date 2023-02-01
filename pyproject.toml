@@ -16,7 +16,7 @@
 
 [tool.poetry.group.dev.dependencies]
     pre-commit      = "^2.21.0"
-    opencv-python   = "^4.6.0.66"     # for type-hinting
+    opencv-python   = "^4.7.0.68"     # for type-hinting
     pupil-apriltags = "^1.0.4.post10" # for type-hinting
 
 [tool.pyright]
