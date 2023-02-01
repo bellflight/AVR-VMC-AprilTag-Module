@@ -2,14 +2,14 @@
 
 [[package]]
 name = "bell-avr-libraries"
-version = "0.1.12"
+version = "0.1.13"
 description = "Common Python libraries used by parts of Bell AVR"
 category = "main"
 optional = false
 python-versions = ">=3.8,<3.12"
 files = [
-    {file = "bell_avr_libraries-0.1.12-py3-none-any.whl", hash = "sha256:67eae622b168b9fee97125d85f638b0381f69d557657605db6215288f197e8ce"},
-    {file = "bell_avr_libraries-0.1.12.tar.gz", hash = "sha256:32924dca40e0b94b6ec0cd7b6bf9e0f9224ae586e2ba164578bf6a7d9e613140"},
+    {file = "bell_avr_libraries-0.1.13-py3-none-any.whl", hash = "sha256:02db8028b8bad95da415892df51173b8f15dba3410e869fbd904a0ad8679017f"},
+    {file = "bell_avr_libraries-0.1.13.tar.gz", hash = "sha256:b7c699e8e72b44be87a85f30229fd75c60145e64438a2acabfb9c2685db1714a"},
 ]
 
 [package.dependencies]
@@ -385,5 +385,5 @@ dev = ["black (>=19.3b0)", "pytest (>=4.6.2)"]
 
 [metadata]
 lock-version = "2.0"
-    python-versions = ">=3.9,<3.12"
-content-hash = "b325e91bdb9c115653cd66e24bbe4a81d491e3989916cc9b853ea809a4e1a924"
+python-versions = ">=3.9,<3.12"
+content-hash = "03dc2e4413bb7fa6f233df6dc8459fe7208497e66d66477aec1899430ccbc119"
