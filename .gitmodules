@@ -13,3 +13,6 @@
 	url = https://github.com/nlohmann/json
 	branch = v3.10.5
 	shallow = true
+[submodule "typings/transforms3d"]
+	path = typings/transforms3d
+	url = https://github.com/bellflight/transforms3d-typings

@@ -1,7 +1,8 @@
 import math
+import os
 import subprocess
 import warnings
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import transforms3d as t3d
@@ -14,35 +15,31 @@ from bell.avr.mqtt.payloads import (
     AvrApriltagsVisibleTags,
     AvrApriltagsVisibleTagsPosWorld,
 )
+from nptyping import Float, NDArray, Shape
+
+try:
+    import config
+except ImportError:
+    from . import config
 
 warnings.simplefilter("ignore", np.RankWarning)
+
+THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class AprilTagModule(MQTTModule):
     def __init__(self):
         super().__init__()
 
-        self.config: dict = {
-            "cam": {
-                "pos": [0, 0, 8.5],  # cm from FC forward, right, down
-                "rpy": [
-                    0,
-                    0,
-                    math.pi / 2,
-                ],  # cam x = body -y; cam y = body x, cam z = body z
-            },
-            "tag_truth": {"0": {"rpy": [0, 0, 0], "xyz": [0, 0, 0]}},
-        }
-
         # dict to hold transformation matrixes
-        self.tm = {}
+        self.tm: Dict[str, NDArray[Shape["4, 4, 4, 4"], Float]] = {}
         # setup transformation matrixes
         self.setup_transforms()
 
         self.topic_map = {"avr/apriltags/raw": self.on_apriltag_message}
 
     def setup_transforms(self) -> None:
-        cam_rpy = self.config["cam"]["rpy"]
+        cam_rpy = config.CAM_ATTITUDE
 
         # rotation matrix
         rmat = t3d.euler.euler2mat(
@@ -52,17 +49,21 @@ class AprilTagModule(MQTTModule):
             axes="rxyz",
         )
 
-        H_cam_aeroBody = t3d.affines.compose(self.config["cam"]["pos"], rmat, [1, 1, 1])
+        H_cam_aeroBody = t3d.affines.compose(
+            np.asarray(config.CAM_POS), rmat, np.asarray((1, 1, 1))
+        )
         H_aeroBody_cam = np.linalg.inv(H_cam_aeroBody)
 
         self.tm["H_aeroBody_cam"] = H_aeroBody_cam
 
-        for tag, tag_data in self.config["tag_truth"].items():
+        for tag, tag_data in config.TAG_TRUTH.items():
             name = f"tag_{tag}"
             rmat = t3d.euler.euler2mat(
                 tag_data["rpy"][0], tag_data["rpy"][1], tag_data["rpy"][2], axes="rxyz"
             )
-            tag_tf = t3d.affines.compose(tag_data["xyz"], rmat, [1, 1, 1])
+            tag_tf = t3d.affines.compose(
+                np.asarray(tag_data["xyz"]), rmat, np.asarray((1, 1, 1))
+            )
 
             H_to_from = f"H_{name}_aeroRef"
             self.tm[H_to_from] = tag_tf
@@ -162,11 +163,11 @@ class AprilTagModule(MQTTModule):
         """
         returns the angle with respect to "north" in the "world frame"
         """
-        if str(tag_id) not in self.config["tag_truth"].keys():
+        if tag_id not in config.TAG_TRUTH.keys():
             return
 
-        del_x = self.config["tag_truth"][str(tag_id)]["xyz"][0] - pos[0]
-        del_y = self.config["tag_truth"][str(tag_id)]["xyz"][1] - pos[1]
+        del_x = config.TAG_TRUTH[tag_id]["xyz"][0] - pos[0]
+        del_y = config.TAG_TRUTH[tag_id]["xyz"][1] - pos[1]
         deg = math.degrees(
             math.atan2(del_y, del_x)
         )  # TODO - i think plus pi/2 bc this is respect to +x
@@ -176,7 +177,7 @@ class AprilTagModule(MQTTModule):
 
         return deg
 
-    def H_inv(self, H: np.ndarray) -> np.ndarray:
+    def H_inv(self, H: NDArray[Shape["4, 4"], Float]) -> NDArray[Shape["4, 4"], Float]:
         """
         A method to efficiently compute the inverse of a homogeneous transformation
         matrix. Reference: http://vr.cs.uiuc.edu/node81.html
@@ -186,14 +187,14 @@ class AprilTagModule(MQTTModule):
 
         R_t = np.transpose(R)
         H_rot = t3d.affines.compose(
-            [0, 0, 0],
+            np.asarray((0, 0, 0)),
             R_t,
-            [1, 1, 1],
+            np.asarray((1, 1, 1)),
         )
         H_tran = t3d.affines.compose(
-            [-1 * T[0], -1 * T[1], -1 * T[2]],
+            np.asarray((-1 * T[0], -1 * T[1], -1 * T[2])),
             np.eye(3),
-            [1, 1, 1],
+            np.asarray((1, 1, 1)),
         )
 
         return H_rot.dot(H_tran)
@@ -220,9 +221,11 @@ class AprilTagModule(MQTTModule):
         rpy = t3d.euler.mat2euler(tag_rot)
         R = t3d.euler.euler2mat(0, 0, rpy[2], axes="rxyz")
         H_tag_cam = t3d.affines.compose(
-            [tag["pos"]["x"] * 100, tag["pos"]["y"] * 100, tag["pos"]["z"] * 100],
+            np.asarray(
+                (tag["pos"]["x"] * 100, tag["pos"]["y"] * 100, tag["pos"]["z"] * 100)
+            ),
             R,
-            [1, 1, 1],
+            np.asarray((1, 1, 1)),
         )
         T, R, Z, S = t3d.affines.decompose44(H_tag_cam)
 
@@ -237,9 +240,9 @@ class AprilTagModule(MQTTModule):
 
         T2, R2, Z2, S2 = t3d.affines.decompose44(H_aerobody_tag)
         rpy = t3d.euler.mat2euler(R2)
-        pos_rel: Tuple[float, float, float] = T2  # type: ignore
+        pos_rel = T2
 
-        horizontal_distance: float = np.linalg.norm([pos_rel[0], pos_rel[1]])  # type: ignore
+        horizontal_distance: float = np.linalg.norm((pos_rel[0], pos_rel[1]))  # type: ignore
         vertical_distance = abs(pos_rel[2])
 
         heading = rpy[2]
@@ -247,10 +250,10 @@ class AprilTagModule(MQTTModule):
             heading += 2 * math.pi
 
         heading: float = np.rad2deg(heading)
-        angle = self.angle_to_tag(pos_rel)  # type: ignore
+        angle = self.angle_to_tag(tuple(pos_rel))
 
         # if we have a location definition for the visible tag
-        if str(tag["id"]) in self.config["tag_truth"].keys():
+        if tag["id"] in config.TAG_TRUTH.keys():
             H_cam_aeroRef = self.tm[f"H_{name}_aeroRef"].dot(H_cam_tag)
             H_aeroBody_aeroRef = H_cam_aeroRef.dot(self.tm["H_aeroBody_cam"])
 
@@ -262,7 +265,7 @@ class AprilTagModule(MQTTModule):
                 vertical_distance,
                 angle,
                 pos_world,
-                pos_rel,
+                tuple(pos_rel),
                 heading,
             )
         else:
@@ -272,12 +275,13 @@ class AprilTagModule(MQTTModule):
                 vertical_distance,
                 angle,
                 None,
-                pos_rel,
+                tuple(pos_rel),
                 heading,
             )
 
     def run(self) -> None:
-        subprocess.Popen("/app/c/build/avrapriltags")
+        avrapriltags = os.path.join(THIS_DIR, "..", "c", "build", "avrapriltags")
+        subprocess.Popen(avrapriltags)
         super().run()
 
 
