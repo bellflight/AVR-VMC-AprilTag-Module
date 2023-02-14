@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Literal
 
 import cv2
 from bell.avr.utils.decorators import run_forever
@@ -8,51 +8,36 @@ from loguru import logger
 class CaptureDevice:
     def __init__(
         self,
-        protocol: str,
+        protocol: Literal["v4l2", "argus"],
         video_device: str,
         res: Tuple[int, int],
         framerate: Optional[int] = None,
-    ):
-        self.protocol = protocol
-        self.dev = video_device
-        self.res = res
+    ):  # sourcery skip: introduce-default-else
+        video_format = "BGR"
+        if protocol == "v4l2":
+            video_format = "BGRx"
 
-        # "gst-launch-1.0 nvarguscamerasrc ! 'video/x-raw(memory:NVMM),width=1920,height=1080,framerate=30/1,format=NV12' ! nvv4l2h265enc bitrate=10000000 iframeinterval=40 ! video/x-h265, stream-format=byte-stream ! rndbuffersize min=1500 max=1500 ! tee name=t ! queue ! udpsink host=192.168.1.140 port=5000 t. ! queue ! udpsink host=192.168.1.112 port=5000"
-        # "gst-launch-1.0 nvarguscamerasrc ! 'video/x-raw(memory:NVMM),width=1920,height=1080,framerate=30/1,format=NV12' ! videoconvert ! nvoverlaysink"
+        # if the framerate argument is supplied, we will modify the connection
+        # string to provide a rate limiter to the incoming string at virtually
+        # no performance penalty
+        if framerate is None:
+            frame_string = f"video/x-raw,format={video_format}"
+        else:
+            frame_string = (
+                f"videorate ! video/x-raw,format={video_format},framerate={framerate}/1"
+            )
 
-        if self.protocol == "v4l2":
-            # if the framerate argument is supplied, we will modify the connection
-            # string to provide a rate limiter to the incoming string at virtually
-            # no performance penalty
-            if framerate is None:
-                frame_string = "video/x-raw,format=BGRx"
-            else:
-                frame_string = (
-                    f"videorate ! video/x-raw,format=BGRx,framerate={framerate}/1"
-                )
-
-            # this is the efficient way of capturing, leveraging the hardware
-            # JPEG decoder on the jetson
+        if protocol == "v4l2":
+            # this is the inefficient way of capturing, using the software decoder running on CPU
             connection_string = f"v4l2src device={video_device} io-mode=2 ! image/jpeg,width=1280,height=720,framerate=60/1 ! jpegparse ! nvv4l2decoder mjpeg=1 ! nvvidconv ! {frame_string} ! videoconvert ! video/x-raw,width={res[0]},height={res[1]},format=BGRx ! appsink"
 
-        elif self.protocol == "argus":
-            if framerate is None:
-                frame_string = "video/x-raw,format=BGR"
-            else:
-                frame_string = (
-                    f"videorate ! video/x-raw,format=BGR,framerate={framerate}/1"
-                )
-
+        elif protocol == "argus":
+            # this is the efficient way of capturing, leveraging the hardware
+            # JPEG decoder on the jetson
             connection_string = f"nvarguscamerasrc ! video/x-raw(memory:NVMM), width=1280, height=720,format=NV12, framerate=60/1 ! nvvidconv ! video/x-raw,format=BGRx ! videoconvert ! {frame_string},width={res[0]},height={res[1]} ! appsink"
 
         else:
-            raise ValueError
-
-        # this is the inefficient way of capturing, using the software decoder running on CPU
-        # self.cv = cv2.VideoCapture("v4l2src device=/dev/video2 io-mode=2 ! image/jpeg,width=1280,height=720,framerate=60/1 ! jpegparse ! jpegdec ! videoconvert ! appsink sync=false")
-
-        # this is how we might have to capture from csi cameras..
-        # self.cv = cv2.VideoCapture("nvarguscamerasrc ! 'video/x-raw(memory:NVMM), width=1920, height=1080, framerate=30/1, format=NV12' ! videoconvert ! appsink sync=false",)
+            raise ValueError(f"Unknown protocol: {protocol}")
 
         # create the gstreamer pipeline
         self.cv = cv2.VideoCapture(connection_string)

@@ -1,6 +1,6 @@
 import multiprocessing
 import time
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Literal
 
 import numpy as np
 from bell.avr.utils.decorators import try_except
@@ -41,7 +41,7 @@ class AprilTagWrapper:
 class AprilTagVPS:
     def __init__(
         self,
-        protocol: str,
+        protocol: Literal["v4l2", "argus"],
         video_device: str,
         res: Tuple[int, int],
         camera_params: Tuple[float, float, float, float],
@@ -49,7 +49,7 @@ class AprilTagVPS:
         framerate: Optional[int] = None,
     ):
         # camera parameters
-        self.protocol = protocol
+        self.protocol: Literal["v4l2", "argus"] = protocol
         self.video_device = video_device
         self.res = res
         self.framerate = framerate
