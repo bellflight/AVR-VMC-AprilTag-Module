@@ -68,27 +68,37 @@ def test_setup_transforms(apriltag_module: AprilTagModule) -> None:
             ),
             AvrApriltagsVisiblePayload(
                 tags=[
-                    AvrApriltagsVisibleTags(
-                        id=0,
-                        horizontal_dist=215.23243250030885,
-                        vertical_dist=310.0,
-                        angle_to_tag=179.00939359502212,
-                        heading=209.7448812969422,
-                        pos_rel=AvrApriltagsVisibleTagsPosRel(
-                            x=-215.20026451227668, y=3.721042037676277, z=-310.0
-                        ),
-                        pos_world=AvrApriltagsVisibleTagsPosWorld(
-                            x=-215.20026451227668, y=3.721042037676277, z=-310.0
-                        ),
-                    )
+                    pytest.approx(
+                        AvrApriltagsVisibleTags(
+                            id=0,
+                            horizontal_dist=215.23243250030885,
+                            vertical_dist=310.0,
+                            angle_to_tag=179.00939359502212,
+                            heading=209.7448812969422,
+                            pos_rel=pytest.approx(
+                                AvrApriltagsVisibleTagsPosRel(
+                                    x=-215.20026451227668, y=3.721042037676277, z=-310.0
+                                )
+                            ),  # type: ignore
+                            pos_world=pytest.approx(
+                                AvrApriltagsVisibleTagsPosWorld(
+                                    x=-215.20026451227668, y=3.721042037676277, z=-310.0
+                                )
+                            ),  # type: ignore
+                        )
+                    )  # type: ignore
                 ]
             ),
-            AvrApriltagsSelectedPayload(
-                heading=209.7448812969422,
-                pos=AvrApriltagsSelectedPos(
-                    n=-215.20026451227668, e=3.721042037676277, d=-310.0
-                ),
-                tag_id=0,
+            pytest.approx(
+                AvrApriltagsSelectedPayload(
+                    heading=209.7448812969422,
+                    pos=pytest.approx(
+                        AvrApriltagsSelectedPos(
+                            n=-215.20026451227668, e=3.721042037676277, d=-310.0
+                        )
+                    ),  # type: ignore
+                    tag_id=0,
+                )
             ),
         ),
         (
@@ -103,19 +113,23 @@ def test_setup_transforms(apriltag_module: AprilTagModule) -> None:
             ),
             AvrApriltagsVisiblePayload(
                 tags=[
-                    AvrApriltagsVisibleTags(
-                        id=2,
-                        horizontal_dist=215.23243250030885,
-                        vertical_dist=310.0,
-                        angle_to_tag=179.00939359502212,
-                        heading=209.7448812969422,
-                        pos_rel=AvrApriltagsVisibleTagsPosRel(
-                            x=-215.20026451227668, y=3.721042037676277, z=-310.0
-                        ),
-                        pos_world=AvrApriltagsVisibleTagsPosWorld(
-                            x=None, y=None, z=None
-                        ),
-                    )
+                    pytest.approx(
+                        AvrApriltagsVisibleTags(
+                            id=2,
+                            horizontal_dist=215.23243250030885,
+                            vertical_dist=310.0,
+                            angle_to_tag=179.00939359502212,
+                            heading=209.7448812969422,
+                            pos_rel=pytest.approx(
+                                AvrApriltagsVisibleTagsPosRel(
+                                    x=-215.20026451227668, y=3.721042037676277, z=-310.0
+                                )
+                            ),  # type: ignore
+                            pos_world=pytest.approx(
+                                AvrApriltagsVisibleTagsPosWorld(x=None, y=None, z=None)
+                            ),  # type: ignore
+                        )
+                    )  # type: ignore
                 ]
             ),
             None,
@@ -246,7 +260,7 @@ def test_H_inv(
                 310.0,
                 pytest.approx(179.00939359502212),
                 None,
-                (-215.20026451227668, 3.721042037676277, -310.0),
+                pytest.approx((-215.20026451227668, 3.721042037676277, -310.0)),
                 pytest.approx(209.7448812969422),
             ),
         ),
