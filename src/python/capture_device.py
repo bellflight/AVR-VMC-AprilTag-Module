@@ -1,4 +1,4 @@
-from typing import Optional, Tuple, Literal
+from typing import Literal, Optional, Tuple
 
 import cv2
 from bell.avr.utils.decorators import run_forever

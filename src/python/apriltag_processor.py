@@ -1,12 +1,11 @@
-import subprocess
-import warnings
 import math
 import os
-from typing import List, Optional, Tuple, Dict
+import subprocess
+import warnings
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import transforms3d as t3d
-from nptyping import Float, NDArray, Shape
 from bell.avr.mqtt.client import MQTTModule
 from bell.avr.mqtt.payloads import (
     AvrApriltagsRawPayload,
@@ -16,6 +15,7 @@ from bell.avr.mqtt.payloads import (
     AvrApriltagsVisibleTags,
     AvrApriltagsVisibleTagsPosWorld,
 )
+from nptyping import Float, NDArray, Shape
 
 try:
     import config

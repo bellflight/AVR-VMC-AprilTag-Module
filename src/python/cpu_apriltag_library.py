@@ -1,12 +1,12 @@
 import multiprocessing
 import time
-from typing import Optional, Tuple, Literal, Any
+from typing import Any, Literal, Optional, Tuple
 
-from bell.avr.utils.decorators import try_except, run_forever
+from bell.avr.utils.decorators import run_forever, try_except
 from capture_device import CaptureDevice
 from loguru import logger
-from pupil_apriltags import Detection, Detector
 from nptyping import NDArray, UInt8
+from pupil_apriltags import Detection, Detector
 
 
 class AprilTagWrapper:
