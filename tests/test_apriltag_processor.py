@@ -126,7 +126,6 @@ def test_on_apriltag_message(
     expected_selected: Optional[AVRAprilTagsVehiclePosition],
 ) -> None:
     apriltag_module.on_apriltag_message(payload)
-    print(apriltag_module.send_message.call_args_list)
 
     apriltag_module.send_message.assert_any_call(
         "avr/apriltags/visible", expected_visible
