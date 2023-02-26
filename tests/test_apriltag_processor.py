@@ -1,20 +1,19 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Optional, Tuple
+
 import numpy as np
-from typing import TYPE_CHECKING, Tuple, Optional
 import pytest
-from nptyping import Float, NDArray, Shape
 from bell.avr.mqtt.payloads import (
-    AvrApriltagsRawPayload,
-    AvrApriltagsSelectedPayload,
-    AvrApriltagsVisiblePayload,
-    AvrApriltagsRawTags,
-    AvrApriltagsRawTagsPos,
-    AvrApriltagsSelectedPos,
-    AvrApriltagsVisibleTags,
-    AvrApriltagsVisibleTagsPosRel,
-    AvrApriltagsVisibleTagsPosWorld,
+    AVRAprilTagsRaw,
+    AVRAprilTagsRawApriltags,
+    AVRAprilTagsVehiclePosition,
+    AVRAprilTagsVisible,
+    AVRAprilTagsVisibleApriltags,
+    AVRAprilTagsVisibleApriltagsAbsolutePosition,
+    AVRAprilTagsVisibleApriltagsRelativePosition,
 )
+from nptyping import Float, NDArray, Shape
 
 if TYPE_CHECKING:
     from src.python.apriltag_processor import AprilTagModule
@@ -57,79 +56,63 @@ def test_setup_transforms(apriltag_module: AprilTagModule) -> None:
     "payload, expected_visible, expected_selected",
     [
         (
-            AvrApriltagsRawPayload(
-                tags=[
-                    AvrApriltagsRawTags(
-                        id=0,
-                        pos=AvrApriltagsRawTagsPos(x=1, y=2, z=3),
-                        rotation=((4, 5, 6), (7, 8, 9), (10, 11, 12)),
+            AVRAprilTagsRaw(
+                apriltags=[
+                    AVRAprilTagsRawApriltags(
+                        tag_id=0,
+                        x=1,
+                        y=2,
+                        z=3,
+                        rotation=((-1, 0, 1), (0, 1, -1), (1, -1, 0)),
                     )
                 ]
             ),
-            AvrApriltagsVisiblePayload(
-                tags=[
-                    pytest.approx(
-                        AvrApriltagsVisibleTags(
-                            id=0,
-                            horizontal_dist=215.23243250030885,
-                            vertical_dist=310.0,
-                            angle_to_tag=179.00939359502212,
-                            heading=209.7448812969422,
-                            pos_rel=pytest.approx(
-                                AvrApriltagsVisibleTagsPosRel(
-                                    x=-215.20026451227668, y=3.721042037676277, z=-310.0
-                                )
-                            ),  # type: ignore
-                            pos_world=pytest.approx(
-                                AvrApriltagsVisibleTagsPosWorld(
-                                    x=-215.20026451227668, y=3.721042037676277, z=-310.0
-                                )
-                            ),  # type: ignore
-                        )
-                    )  # type: ignore
+            AVRAprilTagsVisible(
+                apriltags=[
+                    AVRAprilTagsVisibleApriltags(
+                        tag_id=0,
+                        horizontal_distance=215.23243250030882,
+                        vertical_distance=310.0,
+                        angle=59.264512298079914,
+                        hdg=90.00000000000001,
+                        relative_position=AVRAprilTagsVisibleApriltagsRelativePosition(
+                            x=109.99999999999997, y=185.0, z=-310.0
+                        ),
+                        absolute_position=AVRAprilTagsVisibleApriltagsAbsolutePosition(
+                            x=109.99999999999997, y=185.0, z=-310.0
+                        ),
+                    )
                 ]
             ),
-            pytest.approx(
-                AvrApriltagsSelectedPayload(
-                    heading=209.7448812969422,
-                    pos=pytest.approx(
-                        AvrApriltagsSelectedPos(
-                            n=-215.20026451227668, e=3.721042037676277, d=-310.0
-                        )
-                    ),  # type: ignore
-                    tag_id=0,
-                )
+            AVRAprilTagsVehiclePosition(
+                tag_id=0, x=109.99999999999997, y=185.0, z=-310.0, hdg=90.00000000000001
             ),
         ),
         (
-            AvrApriltagsRawPayload(
-                tags=[
-                    AvrApriltagsRawTags(
-                        id=2,
-                        pos=AvrApriltagsRawTagsPos(x=1, y=2, z=3),
-                        rotation=((4, 5, 6), (7, 8, 9), (10, 11, 12)),
+            AVRAprilTagsRaw(
+                apriltags=[
+                    AVRAprilTagsRawApriltags(
+                        tag_id=2,
+                        x=1,
+                        y=2,
+                        z=3,
+                        rotation=((-1, 0, 1), (0, 1, -1), (1, -1, 0)),
                     )
                 ]
             ),
-            AvrApriltagsVisiblePayload(
-                tags=[
-                    pytest.approx(
-                        AvrApriltagsVisibleTags(
-                            id=2,
-                            horizontal_dist=215.23243250030885,
-                            vertical_dist=310.0,
-                            angle_to_tag=179.00939359502212,
-                            heading=209.7448812969422,
-                            pos_rel=pytest.approx(
-                                AvrApriltagsVisibleTagsPosRel(
-                                    x=-215.20026451227668, y=3.721042037676277, z=-310.0
-                                )
-                            ),  # type: ignore
-                            pos_world=pytest.approx(
-                                AvrApriltagsVisibleTagsPosWorld(x=None, y=None, z=None)
-                            ),  # type: ignore
-                        )
-                    )  # type: ignore
+            AVRAprilTagsVisible(
+                apriltags=[
+                    AVRAprilTagsVisibleApriltags(
+                        tag_id=2,
+                        horizontal_distance=215.23243250030882,
+                        vertical_distance=310.0,
+                        angle=59.264512298079914,
+                        hdg=90.00000000000001,
+                        relative_position=AVRAprilTagsVisibleApriltagsRelativePosition(
+                            x=109.99999999999997, y=185.0, z=-310.0
+                        ),
+                        absolute_position=None,
+                    )
                 ]
             ),
             None,
@@ -138,18 +121,20 @@ def test_setup_transforms(apriltag_module: AprilTagModule) -> None:
 )
 def test_on_apriltag_message(
     apriltag_module: AprilTagModule,
-    payload: AvrApriltagsRawPayload,
-    expected_visible: AvrApriltagsVisiblePayload,
-    expected_selected: Optional[AvrApriltagsSelectedPayload],
+    payload: AVRAprilTagsRaw,
+    expected_visible: AVRAprilTagsVisible,
+    expected_selected: Optional[AVRAprilTagsVehiclePosition],
 ) -> None:
     apriltag_module.on_apriltag_message(payload)
+    print(apriltag_module.send_message.call_args_list)
+
     apriltag_module.send_message.assert_any_call(
         "avr/apriltags/visible", expected_visible
     )
 
     if expected_selected is not None:
         apriltag_module.send_message.assert_any_call(
-            "avr/apriltags/selected", expected_selected
+            "avr/apriltags/vehicle_position", expected_selected
         )
 
 
@@ -233,41 +218,45 @@ def test_H_inv(
     "tag, expected",
     [
         (
-            AvrApriltagsRawTags(
-                id=0,
-                pos=AvrApriltagsRawTagsPos(x=1, y=2, z=3),
-                rotation=((4, 5, 6), (7, 8, 9), (10, 11, 12)),
+            AVRAprilTagsRawApriltags(
+                tag_id=0,
+                x=1,
+                y=2,
+                z=3,
+                rotation=((-1, 0, 1), (0, 1, -1), (1, -1, 0)),
             ),
             (
                 0,
                 pytest.approx(215.23243250030885),
                 310.0,
-                pytest.approx(179.00939359502212),
+                pytest.approx(59.264512298079914),
                 np.array([-215.20026451, 3.72104204, -310.0]),
-                pytest.approx((-215.20026451227668, 3.721042037676277, -310.0)),
-                pytest.approx(209.7448812969422),
+                pytest.approx((110.0, 185.0, -310.0)),
+                pytest.approx(90.0),
             ),
         ),
         (
-            AvrApriltagsRawTags(
-                id=2,
-                pos=AvrApriltagsRawTagsPos(x=1, y=2, z=3),
-                rotation=((4, 5, 6), (7, 8, 9), (10, 11, 12)),
+            AVRAprilTagsRawApriltags(
+                tag_id=2,
+                x=1,
+                y=2,
+                z=3,
+                rotation=((-1, 0, 1), (0, 1, -1), (1, -1, 0)),
             ),
             (
                 2,
                 pytest.approx(215.23243250030885),
                 310.0,
-                pytest.approx(179.00939359502212),
+                pytest.approx(59.264512298079914),
                 None,
-                pytest.approx((-215.20026451227668, 3.721042037676277, -310.0)),
-                pytest.approx(209.7448812969422),
+                pytest.approx((110.0, 185.0, -310.0)),
+                pytest.approx(90.0),
             ),
         ),
     ],
 )
 def test_handle_tag(
-    apriltag_module: AprilTagModule, tag: AvrApriltagsRawTags, expected: tuple
+    apriltag_module: AprilTagModule, tag: AVRAprilTagsRawApriltags, expected: tuple
 ) -> None:
     result = apriltag_module.handle_tag(tag)
     for r_i, ex_i in zip(result, expected):

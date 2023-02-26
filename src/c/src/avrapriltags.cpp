@@ -17,11 +17,11 @@ json jsonify_tag(nvAprilTagsID_t detection) {
   // create an empty structure (null)
   json j;
 
-  j["id"] = detection.id;
+  j["tag_id"] = detection.id;
 
-  j["pos"]["x"] = detection.translation[0];
-  j["pos"]["y"] = detection.translation[1];
-  j["pos"]["z"] = detection.translation[2];
+  j["x"] = detection.translation[0];
+  j["y"] = detection.translation[1];
+  j["z"] = detection.translation[2];
 
   j["rotation"] = {{detection.orientation[0], detection.orientation[3],
                     detection.orientation[6]},
@@ -39,7 +39,7 @@ int main() {
   const std::string SERVER_ADDRESS{"tcp://mqtt:18830"};
   const std::string CLIENT_ID{"nvapriltags"};
   const std::string TAG_TOPIC{"avr/apriltags/raw"};
-  const std::string FPS_TOPIC{"avr/apriltags/fps"};
+  const std::string FPS_TOPIC{"avr/apriltags/status"};
 
   const int QOS = 0;
   mqtt::client client(SERVER_ADDRESS, CLIENT_ID);
@@ -65,7 +65,7 @@ int main() {
       "video/x-raw,format=BGRx !  videoconvert ! videorate ! "
       "video/x-raw,format=BGR,framerate=5/1 ! appsink",
       cv::CAP_GSTREAMER);
-  std::cout << "made it past cap device" << std::endl;
+  std::cout << "Started capture" << std::endl;
 
   cv::Mat frame;
   cv::Mat img_rgba8;
@@ -101,7 +101,7 @@ int main() {
       // send the frame to GPU memory and run the detections
       uint32_t num_detections = process_frame(img_rgba8, impl_);
 
-      std::string payload = "{\"tags\":[";
+      std::string payload = "{\"apriltags\":[";
 
       // handle the detections
       for (int i = 0; i < num_detections; i++) {
@@ -130,7 +130,8 @@ int main() {
                .count() +
            1));
 
-      std::string fps_str = "{\"fps\": " + std::to_string(fps) + "}";
+      std::string fps_str =
+          "{\"frames_per_second\": " + std::to_string(fps) + "}";
       const char *const_fps_str = fps_str.c_str();
 
       client.publish(FPS_TOPIC, const_fps_str, strlen(const_fps_str));
