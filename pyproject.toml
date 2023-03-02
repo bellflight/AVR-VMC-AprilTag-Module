@@ -21,7 +21,7 @@
     pytest          = "^7.2.0"
     pytest-mock     = "^3.10.0"
     pytest-cov      = "^4.0.0"
-    opencv-python   = "^4.6.0.66"     # for type-hinting
+    opencv-python   = "^4.7.0.72"     # for type-hinting
     pupil-apriltags = "^1.0.4.post10" # for type-hinting
 
 [tool.pyright]
