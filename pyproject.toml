@@ -13,15 +13,15 @@
     bell-avr-libraries = "0.2.0a0"
     numpy              = "^1.23.5"
     transforms3d       = "^0.4.1"
-    nptyping           = "^2.4.1"
+    nptyping           = "^2.5.0"
 
 [tool.poetry.group.dev.dependencies]
-    pre-commit      = "^2.21.0"
+    pre-commit      = "^3.1.1"
     clang-format    = "^15.0.7"
     pytest          = "^7.2.0"
     pytest-mock     = "^3.10.0"
     pytest-cov      = "^4.0.0"
-    opencv-python   = "^4.6.0.66"     # for type-hinting
+    opencv-python   = "^4.7.0.72"     # for type-hinting
     pupil-apriltags = "^1.0.4.post10" # for type-hinting
 
 [tool.pyright]
