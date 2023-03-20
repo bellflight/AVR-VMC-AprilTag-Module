@@ -10,7 +10,7 @@ RUN python -m pip install poetry \
 
 # https://ngc.nvidia.com/catalog/containers/nvidia:l4t-ml
 # Use the ML version because it already has precompiled OpenCV
-FROM nvcr.io/nvidia/l4t-ml:r35.1.0-py3
+FROM nvcr.io/nvidia/l4t-ml:r32.6.1-py3
 
 ENV PYTHON_VERSION=3.11
 

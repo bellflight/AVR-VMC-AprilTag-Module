@@ -18,8 +18,8 @@ updates:
       interval: "monthly"
     target-branch: "develop"
 
-  - package-ecosystem: "docker"
-    directory: "/"
-    schedule:
-      interval: "monthly"
-    target-branch: "develop"
+  # - package-ecosystem: "docker"
+  #   directory: "/"
+  #   schedule:
+  #     interval: "monthly"
+  #   target-branch: "develop"
