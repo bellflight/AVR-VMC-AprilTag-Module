@@ -6,14 +6,15 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import transforms3d as t3d
-from bell.avr.mqtt.client import MQTTModule
+from bell.avr.mqtt.module import MQTTModule
 from bell.avr.mqtt.payloads import (
-    AvrApriltagsRawPayload,
-    AvrApriltagsRawTags,
-    AvrApriltagsSelectedPayload,
-    AvrApriltagsVisiblePayload,
-    AvrApriltagsVisibleTags,
-    AvrApriltagsVisibleTagsPosWorld,
+    AVRAprilTagsRaw,
+    AVRAprilTagsRawApriltags,
+    AVRAprilTagsVehiclePosition,
+    AVRAprilTagsVisible,
+    AVRAprilTagsVisibleApriltags,
+    AVRAprilTagsVisibleApriltagsAbsolutePosition,
+    AVRAprilTagsVisibleApriltagsRelativePosition,
 )
 from nptyping import Float, NDArray, Shape
 
@@ -36,7 +37,7 @@ class AprilTagModule(MQTTModule):
         # setup transformation matrixes
         self.setup_transforms()
 
-        self.topic_map = {"avr/apriltags/raw": self.on_apriltag_message}
+        self.topic_callbacks = {"avr/apriltags/raw": self.on_apriltag_message}
 
     def setup_transforms(self) -> None:
         cam_rpy = config.CAM_ATTITUDE
@@ -71,13 +72,13 @@ class AprilTagModule(MQTTModule):
             H_to_from = f"H_{name}_cam"
             self.tm[H_to_from] = np.eye(4)
 
-    def on_apriltag_message(self, payload: AvrApriltagsRawPayload) -> None:
-        tag_list: List[AvrApriltagsVisibleTags] = []
+    def on_apriltag_message(self, payload: AVRAprilTagsRaw) -> None:
+        tag_list: List[AVRAprilTagsVisibleApriltags] = []
 
         min_dist = 1000000
-        closest_tag = None
+        closest_tag_index = None
 
-        for index, tag in enumerate(payload["tags"]):
+        for index, tag in enumerate(payload.apriltags):
             (
                 id_,
                 horizontal_distance,
@@ -92,60 +93,53 @@ class AprilTagModule(MQTTModule):
             if id_ is None:
                 continue
 
-            tag = AvrApriltagsVisibleTags(
-                id=id_,
-                horizontal_dist=horizontal_distance,
-                vertical_dist=vertical_distance,
-                angle_to_tag=angle,
-                heading=heading,
-                pos_rel={
-                    "x": pos_rel[0],
-                    "y": pos_rel[1],
-                    "z": pos_rel[2],
-                },
-                pos_world={
-                    "x": None,
-                    "y": None,
-                    "z": None,
-                },
+            tag = AVRAprilTagsVisibleApriltags(
+                tag_id=id_,
+                horizontal_distance=horizontal_distance,
+                vertical_distance=vertical_distance,
+                angle=angle,
+                hdg=heading,
+                relative_position=AVRAprilTagsVisibleApriltagsRelativePosition(
+                    x=pos_rel[0],
+                    y=pos_rel[1],
+                    z=pos_rel[2],
+                ),
+                absolute_position=None,
             )
 
             # add some more info if we had the truth data for the tag
             if pos_world is not None and pos_world.any():
-                tag["pos_world"] = AvrApriltagsVisibleTagsPosWorld(
+                tag.absolute_position = AVRAprilTagsVisibleApriltagsAbsolutePosition(
                     x=pos_world[0],
                     y=pos_world[1],
                     z=pos_world[2],
                 )
                 if horizontal_distance < min_dist:
                     min_dist = horizontal_distance
-                    closest_tag = index
+                    closest_tag_index = index
 
             tag_list.append(tag)
 
         self.send_message(
-            "avr/apriltags/visible", AvrApriltagsVisiblePayload(tags=tag_list)
+            "avr/apriltags/visible", AVRAprilTagsVisible(apriltags=tag_list)
         )
 
-        if closest_tag is not None:
-            pos_world = tag_list[closest_tag]["pos_world"]
+        if closest_tag_index is not None:
+            closest_tag = tag_list[closest_tag_index]
+            pos_world = closest_tag.absolute_position
 
             # this shouldn't happen
-            assert pos_world["x"] is not None
-            assert pos_world["y"] is not None
-            assert pos_world["z"] is not None
+            assert pos_world is not None
 
-            apriltag_position = AvrApriltagsSelectedPayload(
-                tag_id=tag_list[closest_tag]["id"],
-                pos={
-                    "n": pos_world["x"],
-                    "e": pos_world["y"],
-                    "d": pos_world["z"],
-                },
-                heading=tag_list[closest_tag]["heading"],
+            apriltag_position = AVRAprilTagsVehiclePosition(
+                tag_id=closest_tag.tag_id,
+                x=pos_world.x,
+                y=pos_world.y,
+                z=pos_world.z,
+                hdg=closest_tag.hdg,
             )
 
-            self.send_message("avr/apriltags/selected", apriltag_position)
+            self.send_message("avr/apriltags/vehicle_position", apriltag_position)
 
     def angle_to_tag(self, pos: Tuple[float, float, float]) -> float:
         deg = math.degrees(
@@ -200,7 +194,7 @@ class AprilTagModule(MQTTModule):
         return H_rot.dot(H_tran)
 
     def handle_tag(
-        self, tag: AvrApriltagsRawTags
+        self, tag: AVRAprilTagsRawApriltags
     ) -> Tuple[
         int,
         float,
@@ -215,15 +209,13 @@ class AprilTagModule(MQTTModule):
         based on the tag detections.
         """
 
-        tag_id = tag["id"]
+        tag_id = tag.tag_id
 
-        tag_rot = np.asarray(tag["rotation"])
+        tag_rot = np.asarray(tag.rotation)
         rpy = t3d.euler.mat2euler(tag_rot)
         R = t3d.euler.euler2mat(0, 0, rpy[2], axes="rxyz")
         H_tag_cam = t3d.affines.compose(
-            np.asarray(
-                (tag["pos"]["x"] * 100, tag["pos"]["y"] * 100, tag["pos"]["z"] * 100)
-            ),
+            np.asarray((tag.x * 100, tag.y * 100, tag.z * 100)),
             R,
             np.asarray((1, 1, 1)),
         )
@@ -253,7 +245,7 @@ class AprilTagModule(MQTTModule):
         angle = self.angle_to_tag(tuple(pos_rel))
 
         # if we have a location definition for the visible tag
-        if tag["id"] in config.TAG_TRUTH.keys():
+        if tag_id in config.TAG_TRUTH.keys():
             H_cam_aeroRef = self.tm[f"H_{name}_aeroRef"].dot(H_cam_tag)
             H_aeroBody_aeroRef = H_cam_aeroRef.dot(self.tm["H_aeroBody_cam"])
 
