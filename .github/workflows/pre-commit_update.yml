@@ -3,10 +3,6 @@ name: Pre-Commit Update
 on:
   workflow_dispatch:
   schedule:
-<<<<<<< HEAD
-    # monthly
-=======
->>>>>>> main
     - cron: 0 8 1 * *
 
 jobs:
