@@ -20,7 +20,7 @@
     clang-format    = "^16.0.2"
     pytest          = "^7.3.1"
     pytest-mock     = "^3.10.0"
-    pytest-cov      = "^4.0.0"
+    pytest-cov      = "^4.1.0"
     opencv-python   = "^4.7.0.72"     # for type-hinting
     pupil-apriltags = "^1.0.4.post10" # for type-hinting
 
