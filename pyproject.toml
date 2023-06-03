@@ -9,18 +9,18 @@
 
 [tool.poetry.dependencies]
     python             = ">=3.9,<3.12"
-    loguru             = "^0.6.0"
-    bell-avr-libraries = "0.2.0a0"
-    numpy              = "^1.23.5"
+    loguru             = "0.7.0"
+    bell-avr-libraries = "0.2.0a2"
+    numpy              = "^1.24.3"
     transforms3d       = "^0.4.1"
     nptyping           = "^2.5.0"
 
 [tool.poetry.group.dev.dependencies]
-    pre-commit      = "^3.1.1"
-    clang-format    = "^15.0.7"
-    pytest          = "^7.2.0"
+    pre-commit      = "3.3.2"
+    clang-format    = "16.0.4"
+    pytest          = "^7.3.1"
     pytest-mock     = "^3.10.0"
-    pytest-cov      = "^4.0.0"
+    pytest-cov      = "4.1.0"
     opencv-python   = "^4.7.0.72"     # for type-hinting
     pupil-apriltags = "^1.0.4.post10" # for type-hinting
 
