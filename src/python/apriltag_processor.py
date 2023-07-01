@@ -2,7 +2,7 @@ import math
 import os
 import subprocess
 import warnings
-from typing import Dict, List, Optional, Tuple
+from typing import Optional
 
 import numpy as np
 import transforms3d as t3d
@@ -33,7 +33,7 @@ class AprilTagModule(MQTTModule):
         super().__init__()
 
         # dict to hold transformation matrixes
-        self.tm: Dict[str, NDArray[Shape["4, 4, 4, 4"], Float]] = {}
+        self.tm: dict[str, NDArray[Shape["4, 4, 4, 4"], Float]] = {}
         # setup transformation matrixes
         self.setup_transforms()
 
@@ -73,7 +73,7 @@ class AprilTagModule(MQTTModule):
             self.tm[H_to_from] = np.eye(4)
 
     def on_apriltag_message(self, payload: AVRAprilTagsRaw) -> None:
-        tag_list: List[AVRAprilTagsVisibleApriltags] = []
+        tag_list: list[AVRAprilTagsVisibleApriltags] = []
 
         min_dist = 1000000
         closest_tag_index = None
@@ -141,7 +141,7 @@ class AprilTagModule(MQTTModule):
 
             self.send_message("avr/apriltags/vehicle_position", apriltag_position)
 
-    def angle_to_tag(self, pos: Tuple[float, float, float]) -> float:
+    def angle_to_tag(self, pos: tuple[float, float, float]) -> float:
         deg = math.degrees(
             math.atan2(pos[1], pos[0])
         )  # TODO - i think plus pi/2 bc this is respect to +x
@@ -152,7 +152,7 @@ class AprilTagModule(MQTTModule):
         return deg
 
     def world_angle_to_tag(
-        self, pos: Tuple[float, float, float], tag_id: int
+        self, pos: tuple[float, float, float], tag_id: int
     ) -> Optional[float]:
         """
         returns the angle with respect to "north" in the "world frame"
@@ -195,13 +195,13 @@ class AprilTagModule(MQTTModule):
 
     def handle_tag(
         self, tag: AVRAprilTagsRawApriltags
-    ) -> Tuple[
+    ) -> tuple[
         int,
         float,
         float,
         float,
         Optional[np.ndarray],
-        Tuple[float, float, float],
+        tuple[float, float, float],
         float,
     ]:
         """

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Tuple
+from typing import TYPE_CHECKING, Optional
 
 import numpy as np
 import pytest
@@ -141,7 +141,7 @@ def test_on_apriltag_message(
     "pos, expected", [((1, 2, 3), 63.43494882292201), ((5, 6, 7), 50.19442890773481)]
 )
 def test_angle_to_tag(
-    apriltag_module: AprilTagModule, pos: Tuple[float, float, float], expected: float
+    apriltag_module: AprilTagModule, pos: tuple[float, float, float], expected: float
 ) -> None:
     assert pytest.approx(apriltag_module.angle_to_tag(pos)) == expected
 
@@ -158,7 +158,7 @@ def test_angle_to_tag(
 def test_world_angle_to_tag(
     apriltag_module: AprilTagModule,
     tag_id: int,
-    pos: Tuple[float, float, float],
+    pos: tuple[float, float, float],
     expected: Optional[float],
 ) -> None:
     assert pytest.approx(apriltag_module.world_angle_to_tag(pos, tag_id)) == expected

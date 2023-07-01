@@ -1,4 +1,4 @@
-from typing import Literal, Optional, Tuple
+from typing import Literal, Optional
 
 import cv2
 from bell.avr.utils.decorators import run_forever
@@ -10,7 +10,7 @@ class CaptureDevice:
         self,
         protocol: Literal["v4l2", "argus"],
         video_device: str,
-        res: Tuple[int, int],
+        res: tuple[int, int],
         framerate: Optional[int] = None,
     ):  # sourcery skip: introduce-default-else
         video_format = "BGR"
@@ -42,10 +42,10 @@ class CaptureDevice:
         # create the gstreamer pipeline
         self.cv = cv2.VideoCapture(connection_string)
 
-    def read(self) -> Tuple[bool, Optional[cv2.Mat]]:
+    def read(self) -> tuple[bool, Optional[cv2.Mat]]:
         return self.cv.read()
 
-    def read_gray(self) -> Tuple[bool, Optional[cv2.Mat]]:
+    def read_gray(self) -> tuple[bool, Optional[cv2.Mat]]:
         ret, img = self.cv.read()
         if ret:
             img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)

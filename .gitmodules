@@ -1,17 +1,14 @@
 [submodule "src/c/libraries/paho.mqtt.c"]
 	path = src/c/libraries/paho.mqtt.c
 	url = https://github.com/eclipse/paho.mqtt.c
-	branch = v1.3.12
 	shallow = true
 [submodule "src/c/libraries/paho.mqtt.cpp"]
 	path = src/c/libraries/paho.mqtt.cpp
 	url = https://github.com/eclipse/paho.mqtt.cpp
-	branch = v1.2.0
 	shallow = true
 [submodule "src/c/libraries/json"]
 	path = src/c/libraries/json
 	url = https://github.com/nlohmann/json
-	branch = v3.10.5
 	shallow = true
 [submodule "typings/transforms3d"]
 	path = typings/transforms3d
