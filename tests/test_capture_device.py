@@ -1,7 +1,9 @@
-from pytest_mock.plugin import MockerFixture
-from typing import Optional, Literal
-from src.python.capture_device import CaptureDevice
+from typing import Literal, Optional
+
 import pytest
+from pytest_mock.plugin import MockerFixture
+
+from src.python.capture_device import CaptureDevice
 
 
 @pytest.mark.parametrize(
@@ -45,4 +47,4 @@ def test_init(
 
     import cv2
 
-    cv2.VideoCapture.assert_called_once_with(connection_string)
+    cv2.VideoCapture.assert_called_once_with(connection_string)  # pyright: ignore

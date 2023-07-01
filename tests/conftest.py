@@ -1,26 +1,15 @@
 from __future__ import annotations
 
-from functools import wraps
-from typing import TYPE_CHECKING, Any, Callable
-import pytest
 import math
 import sys
-from pytest_mock.plugin import MockerFixture
+from typing import TYPE_CHECKING
 
+import pytest
+from bell.avr.utils.testing import dont_run_forever
+from pytest_mock.plugin import MockerFixture
 
 if TYPE_CHECKING:
     from src.python.apriltag_processor import AprilTagModule
-
-
-def dont_run_forever(*args, **kwargs) -> Callable:
-    def decorator(f: Callable) -> Callable:
-        @wraps(f)
-        def wrapper(*args, **kwargs) -> Any:
-            return f(*args, **kwargs)
-
-        return wrapper
-
-    return decorator
 
 
 @pytest.fixture
