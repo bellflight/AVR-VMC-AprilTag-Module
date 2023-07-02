@@ -13,30 +13,32 @@ RUN poetry export -o requirements.txt
 # Use the ML version because it already has precompiled OpenCV
 FROM nvcr.io/nvidia/l4t-ml:r32.6.1-py3
 
-ENV PYTHON_VERSION=3.11
+ENV PYTHON_VERSION=3.10
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Fix numpy issues
 ENV OPENBLAS_CORETYPE=AARCH64
 
-# Needed as some repo certs are expired in the base image
-RUN apt-get update -y || true \
- && apt-get install -y ca-certificates software-properties-common && update-ca-certificates
-
 # Install Python newer than 3.6
-RUN add-apt-repository ppa:deadsnakes/ppa \
- && apt-get update -y
-# https://askubuntu.com/a/1297198
-# libssl is needed for MQTT libraries
-RUN apt-get install -y \
-    curl \
-    libssl-dev \
-    python3-pip \
-    python${PYTHON_VERSION} \
-    python${PYTHON_VERSION}-dev \
-    python${PYTHON_VERSION}-distutils \
- && curl -sS https://bootstrap.pypa.io/get-pip.py | python${PYTHON_VERSION} \
+# https://github.com/deadsnakes/issues/issues/251
+WORKDIR /work/
+RUN apt-get update -y
+RUN apt-get install -y tzdata curl ca-certificates
+RUN curl -L -O https://github.com/bellflight/AVR-Python-arm-deb/releases/download/release/libpython3.10-minimal_3.10.11-1+bionic1_arm64.deb \
+ && curl -L -O https://github.com/bellflight/AVR-Python-arm-deb/releases/download/release/libpython3.10-stdlib_3.10.11-1+bionic1_arm64.deb \
+ && curl -L -O https://github.com/bellflight/AVR-Python-arm-deb/releases/download/release/python3.10-distutils_3.10.11-1+bionic1_all.deb \
+ && curl -L -O https://github.com/bellflight/AVR-Python-arm-deb/releases/download/release/python3.10-lib2to3_3.10.11-1+bionic1_all.deb \
+ && curl -L -O https://github.com/bellflight/AVR-Python-arm-deb/releases/download/release/python3.10-minimal_3.10.11-1+bionic1_arm64.deb \
+ && curl -L -O https://github.com/bellflight/AVR-Python-arm-deb/releases/download/release/python3.10_3.10.11-1+bionic1_arm64.deb
+RUN dpkg -i libpython3.10-minimal_3.10.11-1+bionic1_arm64.deb \
+ && dpkg -i libpython3.10-stdlib_3.10.11-1+bionic1_arm64.deb \
+ && dpkg -i python3.10-lib2to3_3.10.11-1+bionic1_all.deb \
+ && dpkg -i python3.10-distutils_3.10.11-1+bionic1_all.deb \
+ && dpkg -i python3.10-minimal_3.10.11-1+bionic1_arm64.deb \
+ && dpkg -i python3.10_3.10.11-1+bionic1_arm64.deb \
+ && rm *.deb
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python${PYTHON_VERSION} \
  && python${PYTHON_VERSION} -m pip install pip wheel setuptools --upgrade
 
 WORKDIR /app
