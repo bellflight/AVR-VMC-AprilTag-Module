@@ -44,6 +44,7 @@ RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python${PYTHON_VERSION} \
 WORKDIR /app
 
 # Copy libraries
+RUN apt-get install -y libssl-dev
 COPY src/c/libraries c/libraries
 
 # Install paho C library
@@ -57,6 +58,9 @@ RUN cd c/libraries/paho.mqtt.cpp \
  && cmake -Bbuild -H. -DPAHO_BUILD_STATIC=ON \
  && cmake --build build/ --target install \
  && ldconfig
+
+# another source:
+# https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_apriltag/tree/release-ea3
 
 # RUN git clone https://github.com/NVIDIA-AI-IOT/isaac_ros_apriltag \
 #  && cd isaac_ros_apriltag \
@@ -73,7 +77,7 @@ COPY src/c/CMakeLists.txt c/CMakeLists.txt
 RUN mkdir -p c/build \
  && cd c/build \
  && cmake .. \
- && make -j$(nproc)
+ && make -j
 
 COPY --from=poetry-exporter /work/requirements.txt requirements.txt
 RUN python${PYTHON_VERSION} -m pip install -r requirements.txt
