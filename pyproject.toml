@@ -10,24 +10,29 @@
 [tool.poetry.dependencies]
     python             = ">=3.9,<3.12"
     loguru             = "0.7.0"
-    bell-avr-libraries = "0.2.0a2"
-    numpy              = "^1.24.3"
-    transforms3d       = "^0.4.1"
-    nptyping           = "^2.5.0"
+    bell-avr-libraries = "0.2.0a4"
+    numpy              = "1.25.0"
+    transforms3d       = "0.4.1"
+    nptyping           = "2.5.0"
 
 [tool.poetry.group.dev.dependencies]
-    pre-commit      = "3.3.2"
-    clang-format    = "16.0.4"
-    pytest          = "^7.3.1"
-    pytest-mock     = "^3.10.0"
+    pre-commit      = "3.3.3"
+    clang-format    = "16.0.6"
+    pytest          = "7.4.0"
+    pytest-mock     = "3.11.1"
     pytest-cov      = "4.1.0"
-    opencv-python   = "^4.7.0.72"     # for type-hinting
-    pupil-apriltags = "^1.0.4.post10" # for type-hinting
+    opencv-python   = "4.8.0.74"     # for type-hinting
+    pupil-apriltags = "1.0.4.post10" # for type-hinting
+    # required to be able to properly export
+    # The `typing-extensions` package has the following compatible candidates `[Package('typing-extensions', '4.6.3')]`;  but, the exporter dependency walker previously elected `typing-extensions (4.7.0)` which is not compatible with the dependency `typing-extensions (>=4.6.0,<4.7.0)`. Please contribute to `poetry-plugin-export` to solve this problem.
+    typing-extensions = "4.6.3"
 
 [tool.pyright]
-    typeCheckingMode = "basic"
-    venvPath         = "."
-    venv             = ".venv"
+    typeCheckingMode           = "basic"
+    venvPath                   = "."
+    venv                       = ".venv"
+    reportMissingParameterType = true
+    exclude                    = ["src/c/**"]
 
 [tool.pytest.ini_options]
     # some of the C libraries include their own Python tests

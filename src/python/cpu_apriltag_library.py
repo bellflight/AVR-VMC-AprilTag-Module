@@ -1,6 +1,6 @@
 import multiprocessing
 import time
-from typing import Any, Literal, Optional, Tuple
+from typing import Any, Literal, Optional
 
 from bell.avr.utils.decorators import run_forever, try_except
 from capture_device import CaptureDevice
@@ -11,7 +11,7 @@ from pupil_apriltags import Detection, Detector
 
 class AprilTagWrapper:
     def __init__(
-        self, camera_params: Tuple[float, float, float, float], tag_size: float
+        self, camera_params: tuple[float, float, float, float], tag_size: float
     ):
         self.camera_params = camera_params
         self.tag_size = tag_size
@@ -43,8 +43,8 @@ class AprilTagVPS:
         self,
         protocol: Literal["v4l2", "argus"],
         video_device: str,
-        res: Tuple[int, int],
-        camera_params: Tuple[float, float, float, float],
+        res: tuple[int, int],
+        camera_params: tuple[float, float, float, float],
         tag_size: float,
         framerate: Optional[int] = None,
     ):
