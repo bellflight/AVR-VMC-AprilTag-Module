@@ -174,7 +174,7 @@ class AprilTagModule(MQTTModule):
     def H_inv(self, H: NDArray[Shape["4, 4"], Float]) -> NDArray[Shape["4, 4"], Float]:
         """
         A method to efficiently compute the inverse of a homogeneous transformation
-        matrix. Reference: http://vr.cs.uiuc.edu/node81.html
+        matrix. Reference: https://web.archive.org/web/20190707102920/http://vr.cs.uiuc.edu/node81.html
         """
 
         T, R, Z, S = t3d.affines.decompose44(H)
