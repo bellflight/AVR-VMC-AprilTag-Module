@@ -242,7 +242,7 @@ class AprilTagModule(MQTTModule):
             heading += 2 * math.pi
 
         heading: float = np.rad2deg(heading)
-        angle = self.angle_to_tag(tuple(pos_rel))
+        angle = self.angle_to_tag(tuple(pos_rel))  # type: ignore
 
         # if we have a location definition for the visible tag
         if tag_id in config.TAG_TRUTH.keys():
@@ -257,7 +257,7 @@ class AprilTagModule(MQTTModule):
                 vertical_distance,
                 angle,
                 pos_world,
-                tuple(pos_rel),
+                tuple(pos_rel),  # type: ignore
                 heading,
             )
         else:
@@ -267,7 +267,7 @@ class AprilTagModule(MQTTModule):
                 vertical_distance,
                 angle,
                 None,
-                tuple(pos_rel),
+                tuple(pos_rel),  # type: ignore
                 heading,
             )
 
