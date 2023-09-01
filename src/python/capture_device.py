@@ -1,6 +1,7 @@
 from typing import Literal, Optional
 
 import cv2
+import cv2.typing
 from bell.avr.utils.decorators import run_forever
 from loguru import logger
 
@@ -42,10 +43,10 @@ class CaptureDevice:
         # create the gstreamer pipeline
         self.cv = cv2.VideoCapture(connection_string)
 
-    def read(self) -> tuple[bool, Optional[cv2.Mat]]:
+    def read(self) -> tuple[bool, Optional[cv2.typing.MatLike]]:
         return self.cv.read()
 
-    def read_gray(self) -> tuple[bool, Optional[cv2.Mat]]:
+    def read_gray(self) -> tuple[bool, Optional[cv2.typing.MatLike]]:
         ret, img = self.cv.read()
         if ret:
             img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
