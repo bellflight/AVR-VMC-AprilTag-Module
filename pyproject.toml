@@ -21,7 +21,7 @@
     pytest          = "7.4.0"
     pytest-mock     = "3.11.1"
     pytest-cov      = "4.1.0"
-    opencv-python   = "4.8.0.74"     # for type-hinting
+    opencv-python   = "4.8.0.76"     # for type-hinting
     pupil-apriltags = "1.0.4.post10" # for type-hinting
 
 [tool.pyright]
