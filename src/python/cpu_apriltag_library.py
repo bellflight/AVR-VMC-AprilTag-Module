@@ -79,7 +79,9 @@ class AprilTagVPS:
         # we will setup 2 processing consumers for the imagery.
         for i in range(2):
             proc = multiprocessing.Process(
-                target=self.perception_loop_start, args=[], daemon=True  # type: ignore
+                target=self.perception_loop_start,
+                args=[],
+                daemon=True,  # type: ignore
             )
             proc.start()
 

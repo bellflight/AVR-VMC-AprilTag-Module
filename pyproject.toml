@@ -8,9 +8,9 @@
     authors     = ["Nathan Vaughn <nvaughn51@gmail.com>"]
 
 [tool.poetry.dependencies]
-    python             = ">=3.9,<3.12"
+    python             = ">=3.9,<3.13"
     loguru             = "0.7.2"
-    bell-avr-libraries = "0.2.0a6"
+    bell-avr-libraries = "0.2.0a7"
     numpy              = "1.26.1"
     transforms3d       = "0.4.1"
     nptyping           = "2.5.0"
@@ -37,6 +37,3 @@
     addopts = "--ignore=src/c"
     # for nptyping
     filterwarnings = "ignore::DeprecationWarning"
-
-[tool.ruff]
-    ignore = ["E501"]
