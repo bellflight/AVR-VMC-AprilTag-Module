@@ -1,4 +1,4 @@
-FROM docker.io/library/python:3.11 AS poetry-exporter
+FROM docker.io/library/python:3.10 AS poetry-exporter
 
 WORKDIR /work
 
