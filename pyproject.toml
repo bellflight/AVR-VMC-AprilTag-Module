@@ -11,13 +11,13 @@
     python             = ">=3.9,<3.13"
     loguru             = "0.7.2"
     bell-avr-libraries = "0.2.0a7"
-    numpy              = "1.26.1"
+    numpy              = "1.26.2"
     transforms3d       = "0.4.1"
     nptyping           = "2.5.0"
 
 [tool.poetry.group.dev.dependencies]
     pre-commit      = "3.5.0"
-    clang-format    = "17.0.3"
+    clang-format    = "17.0.6"
     pytest          = "7.4.3"
     pytest-mock     = "3.12.0"
     pytest-cov      = "4.1.0"
