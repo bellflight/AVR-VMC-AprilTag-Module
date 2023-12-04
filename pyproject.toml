@@ -8,24 +8,21 @@
     authors     = ["Nathan Vaughn <nvaughn51@gmail.com>"]
 
 [tool.poetry.dependencies]
-    python             = ">=3.9,<3.12"
-    loguru             = "0.7.0"
-    bell-avr-libraries = "0.2.0a4"
-    numpy              = "1.25.0"
+    python             = ">=3.9,<3.13"
+    loguru             = "0.7.2"
+    bell-avr-libraries = "0.2.0a7"
+    numpy              = "1.26.2"
     transforms3d       = "0.4.1"
     nptyping           = "2.5.0"
 
 [tool.poetry.group.dev.dependencies]
-    pre-commit      = "3.3.3"
-    clang-format    = "16.0.6"
-    pytest          = "7.4.0"
-    pytest-mock     = "3.11.1"
+    pre-commit      = "3.5.0"
+    clang-format    = "17.0.6"
+    pytest          = "7.4.3"
+    pytest-mock     = "3.12.0"
     pytest-cov      = "4.1.0"
-    opencv-python   = "4.8.0.74"     # for type-hinting
+    opencv-python   = "4.8.1.78"     # for type-hinting
     pupil-apriltags = "1.0.4.post10" # for type-hinting
-    # required to be able to properly export
-    # The `typing-extensions` package has the following compatible candidates `[Package('typing-extensions', '4.6.3')]`;  but, the exporter dependency walker previously elected `typing-extensions (4.7.0)` which is not compatible with the dependency `typing-extensions (>=4.6.0,<4.7.0)`. Please contribute to `poetry-plugin-export` to solve this problem.
-    typing-extensions = "4.6.3"
 
 [tool.pyright]
     typeCheckingMode           = "basic"
@@ -40,6 +37,3 @@
     addopts = "--ignore=src/c"
     # for nptyping
     filterwarnings = "ignore::DeprecationWarning"
-
-[tool.ruff]
-    ignore = ["E501"]
